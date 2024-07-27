@@ -1,0 +1,85 @@
+
+Managing snapshots efficiently can significantly reduce unnecessary costs in AWS. This guide will walk you through a process to automate the deletion of unattached EC2 snapshots using a Lambda function.
+
+Step 1: Create an EC2 Instance
+
+    Launch an EC2 instance:
+        Go to the AWS Management Console.
+        Navigate to EC2 under Compute services.
+        Click on Launch Instance.
+        Choose an Amazon Machine Image (AMI).
+        Select an instance type.
+        Configure instance details, add storage, and configure security groups.
+        Review and launch the instance.
+
+    Note the Instance ID and Volume ID for later use.
+
+Step 2: Create a Snapshot of the Instance
+
+    Create a snapshot:
+        In the EC2 Dashboard, click on Volumes in the left-hand menu.
+        Select the volume attached to your instance.
+        Click on Actions and choose Create Snapshot.
+        Provide a description for the snapshot and click Create Snapshot.
+
+    Note the Snapshot ID for later use.
+
+Step 3: Create a Lambda Function
+
+    Navigate to the Lambda Console:
+        Go to the AWS Lambda Console.
+
+    Create a new Lambda function:
+        Click on Create function.
+        Choose Author from scratch.
+        Enter a name for the function (e.g., DeleteUnusedSnapshots).
+        Choose Python 3.x as the runtime.
+        Click Create function.
+
+    Add the Python code provided in the repository to the Lambda function
+
+    Deploy the Lambda function:
+        Click Deploy to save your changes.
+
+Step 4: Configure Permissions
+
+    Assign Permissions to the Lambda Function:
+        Attach an IAM role with the following policy to the Lambda function
+
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:DescribeSnapshots",
+                "ec2:DescribeVolumes",
+                "ec2:DeleteSnapshot"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+        
+If unsure, you can use AmazonEC2FullAccess which provides broader permissions, though it's not recommended for production due to security best practices.
+
+Step 5: Delete Your EC2 Instance
+
+    Terminate the EC2 instance:
+        In the EC2 Dashboard, select your instance.
+        Click on Actions and choose Instance State -> Terminate.
+        Confirm the termination.
+
+    Verify that the snapshot still exists:
+        Go to the Snapshots section in the EC2 Dashboard to see your snapshot.
+
+Step 6: Run the Lambda Function
+
+    Manually test the Lambda function:
+        In the Lambda Console, select your function.
+        Click Test and create a new test event with any template (the content doesn't matter for this function).
+        Click Test again to run the function.
+
+    Verify that the snapshot is deleted:
+        Go to the Snapshots section in the EC2 Dashboard to ensure the snapshot has been deleted.
